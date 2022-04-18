@@ -7,13 +7,17 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/spider',
+      redirect: '/justdance',
     },
     {
       path: '/spider',
       name: '爬虫',
       component: () => import(/* webpackChunkName: "report" */'./pages/spider'),
     },
-    
+    {
+      path: '/justdance',
+      name: 'justdance',
+      component: () => import(/* webpackChunkName: "report" */'./pages/justdance'),
+    },
   ],
 });

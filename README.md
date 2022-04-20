@@ -1,15 +1,28 @@
 # web-spider
 
-## Project setup
+## usage
+1. 安装依赖
 ```
 yarn install
 ```
-
-### Compiles and hot-reloads for development
+2. 该项目根目录下运行本vue项目（前端）
 ```
 yarn serve
 ```
+3. 在该项目的server目录下启动服务（后端）
+```
+node main.js
+```
+注：若不需要导出数据功能可不执行第三步，并忽略操作时的接口报错
 
 ## functions
 ### justdance
-
+* 随机选曲
+1. 点击“开始选择”按钮，开始随机轮播justdance歌曲信息
+2. 点击“选择”按钮，选择当前轮播的歌曲，并添加展示到“已选歌曲”列表里
+3. 点击“选择并结束”按钮，执行同“选择”按钮的功能，并结束歌曲轮播
+* 导出数据
+点击“导出歌曲数据”按钮即可在./server/files中看到保存的数据文件
+* 计划迭代需求
+1. 可定义自动选取歌曲数目
+2. [优化点]选取歌曲去重

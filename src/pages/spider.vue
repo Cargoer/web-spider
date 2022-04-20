@@ -3,6 +3,8 @@
     <div class="input_area">
       <label for="web_url_input">请输入爬取网站：</label>
       <input type="text" id="web_url_input" v-model="webUrl">
+      <label for="web_tag_input">请输入爬取元素标签：</label>
+      <input type="text" id="web_tag_input" v-model="webTag">
       <div @click="getWebInfo">开始爬取</div>
     </div>
     <div class="result_area">
@@ -11,10 +13,8 @@
           v-for="(item, index) in resultList" 
           :key="index"
           class="result_item"
+          :v-html="item"
         >
-          <a :href="hrefBase + item.href">
-            <img :src="item.imgSrc" alt="" crossorigin="anonymous">
-          </a>
         </div>
       </div>
     </div>
@@ -28,41 +28,41 @@ import cheerio from 'cheerio'
 export default {
   data() {
     return {
-      hrefBase: 'https://justdance.fandom.com',
       webUrl: 'https://justdance.fandom.com/wiki/Home',
-      // webUrl: 'https://github.com/weiyinfu?tab=repositories',
+      webTag: '.wikia-gallery-item',
       resultList: []
     }
   },
   created() {
-    // test cheerio
-    let c = cheerio.load('<div class="3 5">333<div class="2">22</div></div>\n<h1 class="5">555</h1>')
-    let l = c('.3')
-    console.log("l:", l)
+    let testHtml = `
+      <ul id="fruits">
+        <li class="apple">Apple</li>
+        <li class="apple">Apple2</li>
+        <li class="orange">Orange</li>
+        <li class="pear">Pear</li>
+      </ul>
+    `
+    let c = cheerio.load(testHtml)
+    console.log(c(".apple"))
+    console.log(c(".apple").html())
   },
   methods: {
     getWebInfo() {
+      let that = this
       axios.get(this.webUrl).then(resp => {
         console.log("resp:", resp)
         let $ = cheerio.load(resp.data)
         console.log("$:", $)
-        let list = $("#gallery-0 .wikia-gallery-item")
+        let list = $(this.webTag)
+        list.each((i, elem) => {
+          console.log(i, elem)
+          console.log("this:", this)
+          that.resultList.push($(elem.html()))
+        })
+        // console.log(list[0].html())
         // let list = $("#user-repositories-list li")
+        // this.resultList = list
         console.log("list:", list)
-        for(let i = 0; i < list.length; i++) {
-          let item = list.eq(i)
-          console.log("item:", item)
-          let dataSrc = item.find(".thumbimage").attr("data-src")
-          console.log("data-src:", dataSrc)
-          console.log("data-src cut png:", dataSrc.slice(0, dataSrc.indexOf('png')+3))
-          let result = {
-            href: item.find(".link-internal").attr("href"),
-            imgSrc: dataSrc.slice(0, dataSrc.indexOf('png')+3),
-          }
-          // http://localhost:8080/revision/latest/scale-to-width-down/88?cb=20211103231441
-          // https://static.wikia.nocookie.net/justdance/images/d/d5/Girllikeme_cover_generic.png/revision/latest/scale-to-width-down/88?cb=20211103231058
-          this.resultList.push(result)
-        }
         console.log(this.resultList)
       })
     }

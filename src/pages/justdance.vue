@@ -16,6 +16,8 @@
       </div>
     </div>
 
+    <div class="button" @click="saveSongInfo">导出歌曲数据</div>
+
     <div class="pick_result">
       <div class="title">已选歌曲</div>
       <div class="pick_list fr">
@@ -37,6 +39,7 @@
 <script>
 import axios from 'axios'
 import cheerio from 'cheerio'
+// import xlsx from 'node-xlsx'
 
 export default {
   data() {
@@ -56,7 +59,7 @@ export default {
     }
   },
   created() {
-    this.getWebInfo()
+    this.getJustdanceInfo()
   },
   computed: {
     isShuffling() {
@@ -64,12 +67,13 @@ export default {
     }
   },
   methods: {
-    getWebInfo() {
+    getJustdanceInfo() {
       axios.get(this.webUrl).then(resp => {
         console.log("resp:", resp)
         let $ = cheerio.load(resp.data)
         console.log("$:", $)
-        let list = $("#gallery-0 .wikia-gallery-item")
+        let list = $(".wikia-gallery-item")
+        console.log("list:", list)
         // let list = $("#user-repositories-list li")
         for(let i = 0; i < list.length; i++) {
           let item = list.eq(i)
@@ -79,6 +83,7 @@ export default {
             posSubfix = dataSrc.indexOf('jpg')
             if(posSubfix == -1) {
               console.warn("unmatch image format:", dataSrc)
+              continue
             }
           }
           let title = item.find(".link-internal").attr("title")
@@ -91,7 +96,9 @@ export default {
         }
         console.log("result list:", this.resultList)
         this.pickResult = this.resultList[0]
+        // this.saveSongInfo('all')
       })
+      
     },
     shuffle() {
       this.shuffleTimer = setInterval(() => {
@@ -115,6 +122,56 @@ export default {
         console.log(this.shuffleTimer)
       }
     },
+    formatDate(_date) {
+      let date = _date || new Date()
+      let year = date.getFullYear()
+      let month = date.getMonth() + 1
+      let day = date.getDate()
+      return `${year}_${month<10?'0'+month: month}_${day<10?'0'+day: day}`
+    },
+    saveSongInfo() {
+      // const savedFile = xlsx.parse('../../server/files/justdance.xlsx')
+      // console.log("read saved file:", JSON.stringify(savedFile, null, 2))
+      // let toBeSaveList = mode == 'all'? this.resultList: this.pickList
+      // console.log("toBeSaveList:", toBeSaveList)
+      if(!this.resultList.length) {
+        alert("empty!")
+        return
+      }
+      let allData = []
+      let pickData = []
+      allData.push(Object.keys(this.resultList[0]))
+      pickData.push(Object.keys(this.resultList[0]))
+      for(let item of this.resultList) {
+        allData.push(Object.values(item))
+      }
+      for(let item of this.pickList) {
+        pickData.push(Object.values(item))
+      }
+      let xlsxData = [{
+        name: `justdance_all_data`,
+        data: allData
+      }, {
+        name: `justdance_pick_data`,
+        data: pickData
+      }]
+      console.log("xlsxData:", xlsxData)
+      axios({
+        method: 'post',
+        url: 'http://127.0.0.1:8085/saveFile',
+        data: {
+          filePath: `./files/justdance${this.formatDate()}_${Math.floor(Math.random()*100)}.xlsx`,
+          data: xlsxData
+        }
+      }).then(res => {
+        console.log("saveFile res:", res)
+      }).catch(err => {
+        console.log("saveFile err:", err)
+      })
+      // fs.writeFile('./justdance.xlsx', buffer, err => {
+      //   err && (console.error("err:", err))
+      // })
+    }
   }
 }
 </script>
@@ -127,6 +184,15 @@ export default {
 .fc {
   display: flex;
   flex-direction: column;
+}
+.button {
+  padding: 8px 10px;
+  color: #ffffff;
+  border-radius: 6px;
+  background: rgb(102, 177, 255);
+  &:hover {
+    background: #409EFF;
+  }
 }
 .justdance_wrap {
   .pick_area {

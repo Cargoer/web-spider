@@ -19,6 +19,14 @@ module.exports = {
         ws: false,
         changeOrigin: true,
       },
+      '/api': {
+        target: 'http://127.0.0.1:8085/api/',
+        // ws: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': ''
+        }
+      }
     }
   }
 }

@@ -1,5 +1,6 @@
 <template>
-  <div class="justdance_wrap">
+  <div class="justdance_wrap fc">
+    <div class="fr"><div class="button" @click="saveSongInfo">导出歌曲数据</div></div>
     <div class="pick_area fc">
       <div class="pick_info">
         <div class="song_name">{{ pickResult.songName }}</div>
@@ -16,9 +17,8 @@
       </div>
     </div>
 
-    <div class="button" @click="saveSongInfo">导出歌曲数据</div>
-
     <div class="pick_result">
+      <!-- <div class="box_shadow"></div> -->
       <div class="title">已选歌曲</div>
       <div class="pick_list fr">
         <div 
@@ -194,6 +194,7 @@ export default {
     background: #409EFF;
   }
 }
+
 .justdance_wrap {
   .pick_area {
     .pick_info {
@@ -215,6 +216,40 @@ export default {
       }
     }
   }
-  
+  .box_shadow {
+    margin-top: 20px;
+    z-index: 9;
+    // position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 25px;
+    border-radius: 25px 25px 0px 0px;
+    box-shadow: 0 -8px 10px rgba(113, 203, 238, 0.6);
+  }
+  .pick_result {
+    position: relative;
+    z-index: 10;
+    margin-top: 20px;
+    // width: 90%;
+    background-color: #fff;
+    border-radius: 35px 35px 0px 0px;
+    box-shadow: 0 -8px 10px rgba(113, 203, 238, 0.4);
+    // transform: translateY(-25px);
+    .title {
+      margin-top: 10px;
+    }
+    .pick_list {
+      padding: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      .pick_item {
+        img {
+          width: 150px;
+          height: 150px;
+        }
+      }
+    }
+  }
 }
 </style>

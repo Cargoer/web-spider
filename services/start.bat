@@ -1,0 +1,1 @@
+start cmd /k "cd ../server && node main.js"

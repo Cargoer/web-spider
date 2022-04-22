@@ -115,7 +115,20 @@ export default {
       }, 100)
     },
     pickSong(op) {
-      this.pickList.push(this.pickResult)
+      if(this.pickList.indexOf(this.pickResult) == -1) {
+        this.pickList.push(this.pickResult)
+        // console.log("this.$toast:", this.$toast)
+        // this.$toast({
+        //   message: '已加入已选歌单',
+        //   duration: 2000,
+        //   position: 'top'
+        // })
+      } else {
+        this.$toast({
+          message: '已选过该歌曲',
+          duration: 2000,
+        })
+      }
       if(op == 'stop') {
         clearInterval(this.shuffleTimer)
         this.shuffleTimer = null

@@ -9,7 +9,17 @@
         </a>
       </div>
       <div class="pick_operation fr">
-        <div v-if="!isShuffling" class="button shuffle" @click="shuffle">开始选取</div>
+        <div v-if="!isShuffling || pickMode == 'auto'" class="fr">
+          <div class="button shuffle" @click="shuffle">手动选取</div>
+          <div class="button auto" @click="autoShuffleAndPick">
+            自动选取
+            <span @click.stop="">
+              <input type="number" class="input_number" v-model="autoPickNum">
+            </span>
+            首歌曲
+          </div>
+        </div>
+
         <div v-else class="fr">
           <div class="button pick" @click="pickSong">选择</div>
           <div class="button stop" @click="pickSong('stop')">选择并结束</div>
@@ -55,11 +65,26 @@ export default {
       pickList: [],
       shuffleTimer: null,
       // isShuffling: false,
-      pickNum: 1,
+      pickMode: 'manual', // 选曲模式：manual-手动 auto-自动
+      autoPickNum: 3,
     }
   },
   created() {
     this.getJustdanceInfo()
+    document.onkeydown = (e) => {
+      if(e.code == 'Space') {
+        if(!this.isShuffling) {
+          this.shuffle()
+        }
+        else {
+          this.pickSong()
+        }
+      } else if(e.code == 'Enter') {
+        if(this.isShuffling) {
+          this.pickSong('stop')
+        }
+      }
+    }
   },
   computed: {
     isShuffling() {
@@ -135,6 +160,20 @@ export default {
         console.log(this.shuffleTimer)
       }
     },
+    autoShuffleAndPick() {
+      this.pickMode = 'auto'
+      this.shuffle()
+      this.pickList = []
+      let autoPicker = setInterval(() => {
+        this.pickList.push(this.pickResult)
+        if(this.pickList.length == this.autoPickNum) {
+          clearInterval(autoPicker)
+          clearInterval(this.shuffleTimer)
+          this.shuffleTimer = null
+          this.pickMode = 'manual'
+        }
+      }, 150)
+    },
     formatDate(_date) {
       let date = _date || new Date()
       let year = date.getFullYear()
@@ -199,6 +238,7 @@ export default {
   flex-direction: column;
 }
 .button {
+  cursor: pointer;
   padding: 8px 10px;
   color: #ffffff;
   border-radius: 6px;
@@ -219,12 +259,14 @@ export default {
     .pick_operation {
       justify-content: center;
       .button {
-        padding: 8px 10px;
-        color: #ffffff;
-        border-radius: 6px;
-        background: rgb(102, 177, 255);
-        &:hover {
-          background: #409EFF;
+        &.auto {
+          .input_number {
+            border: none;
+            background-color: rgb(217, 236, 255);
+            color: #606266;
+            text-align: center;
+            width: 2.5em;
+          }
         }
       }
     }

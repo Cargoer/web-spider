@@ -30,6 +30,7 @@
     <div class="pick_result">
       <!-- <div class="box_shadow"></div> -->
       <div class="title">已选歌曲</div>
+      <div class="clear" @click.stop="clearPickList">清空已选</div>
       <div class="pick_list fr">
         <div 
           v-for="(item, index) in pickList" 
@@ -49,6 +50,7 @@
 <script>
 import axios from 'axios'
 import cheerio from 'cheerio'
+import { getUrlBase64 } from '@/common/tools.js'
 // import xlsx from 'node-xlsx'
 
 export default {
@@ -112,15 +114,26 @@ export default {
             }
           }
           let title = item.find(".link-internal").attr("title")
-          let result = {
-            songName: title.slice(0, title.indexOf(' (')),
-            href: item.find(".link-internal").attr("href"),
-            imgSrc: dataSrc.slice(0, posSubfix+3),
-          }
-          this.resultList.push(result)
+          getUrlBase64(dataSrc.slice(0, posSubfix+3), 'png').then(res => {
+            let result = {
+              songName: title.slice(0, title.indexOf(' (')),
+              href: item.find(".link-internal").attr("href"),
+              imgSrc: res,
+            }
+            this.resultList.push(result)
+            if(this.resultList.length == 1) {
+              this.pickResult = this.resultList[0]
+            }
+          })
+          // let result = {
+          //   songName: title.slice(0, title.indexOf(' (')),
+          //   href: item.find(".link-internal").attr("href"),
+          //   imgSrc: imgSrcBase64,
+          // }
+          // this.resultList.push(result)
         }
         console.log("result list:", this.resultList)
-        this.pickResult = this.resultList[0]
+        // this.pickResult = this.resultList[0]
         // this.saveSongInfo('all')
       })
       
@@ -132,11 +145,11 @@ export default {
           console.log("randomIndex:", randomIndex)
         }
         this.pickResult = this.resultList[randomIndex]
-        // 图片无法显示情况排查
-        if(!this.pickResult.imgSrc.startsWith("https://static.wikia.nocookie.net")) {
-          console.error("invalid imgSrc:", this.pickResult.imgSrc)
-          console.log("related pickResult:", this.pickResult)
-        }
+        // 图片无法显示情况排查，已采用base64，故注释
+        // if(!this.pickResult.imgSrc.startsWith("https://static.wikia.nocookie.net")) {
+        //   console.error("invalid imgSrc:", this.pickResult.imgSrc)
+        //   console.log("related pickResult:", this.pickResult)
+        // }
       }, 100)
     },
     pickSong(op) {
@@ -173,6 +186,9 @@ export default {
           this.pickMode = 'manual'
         }
       }, 150)
+    },
+    clearPickList() {
+      this.pickList = []
     },
     formatDate(_date) {
       let date = _date || new Date()
@@ -293,6 +309,14 @@ export default {
     // transform: translateY(-25px);
     .title {
       margin-top: 10px;
+    }
+    .clear {
+      cursor: pointer;
+      position: absolute;
+      top: 13px;
+      right: 10px;
+      font-size: 10px;
+      color: rgb(144, 147, 153);
     }
     .pick_list {
       padding: 8px;
